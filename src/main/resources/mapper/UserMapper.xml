@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.cjlu.mapper.UserMapper">
+
+
+    <resultMap id="userMap" type="User">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="college" column="college"/>
+        <result property="number" column="number"/>
+        <result property="password" column="password"/>
+        <result property="phone" column="phone"/>
+        <result property="role" column="role"
+                typeHandler="org.apache.ibatis.type.EnumTypeHandler"
+                javaType="com.cjlu.entity.User$Role"/>
+    </resultMap>
+
+    <resultMap id="userDetailMap" type="User" extends="userMap">
+        <!-- 显式映射 role 字段 -->
+        <result property="role" column="user_role"
+                typeHandler="org.apache.ibatis.type.EnumTypeHandler"
+                javaType="com.cjlu.entity.User$Role"/>
+
+        <!-- 关联其他表 -->
+        <association property="student" resultMap="studentMap"/>
+        <association property="teacher" resultMap="teacherMap"/>
+        <association property="admin" resultMap="adminMap"/>
+    </resultMap>
+
+    <resultMap id="studentMap" type="Student">
+        <id property="id" column="student_id"/>
+        <result property="gender" column="gender"/>
+        <result property="className" column="class_name"/>
+        <result property="level" column="level"/>
+        <result property="skill" column="skill"/>
+        <result property="situation" column="situation"/>
+        <result property="difficult_student" column="difficult_student"/>
+        <result property="loan" column="loan"/>
+    </resultMap>
+
+    <resultMap id="teacherMap" type="Teacher">
+        <id property="teacher_id" column="teacher_id"/>
+        <result property="department" column="department"/>
+    </resultMap>
+
+    <resultMap id="adminMap" type="Admin">
+        <id property="admin_id" column="admin_id"/>
+    </resultMap>
+
+    <select id="findByNumberAndPassword" resultMap="userMap">
+        SELECT * FROM user
+        WHERE number = #{number} AND password = #{password}
+    </select>
+
+    <select id="findByIdWithDetail" resultMap="userDetailMap">
+        SELECT
+        u.*,
+        u.role AS user_role,  <!-- 关键修改：显式指定别名 -->
+        s.student_id AS student_id,
+        s.gender,
+        s.class AS class_name,
+        s.level,
+        s.skill,
+        s.situation,
+        s.difficult_student,
+        s.loan,
+        t.teacher_id,
+        t.department,
+        a.admin_id
+        FROM user u
+        LEFT JOIN student s ON u.id = s.student_id
+        LEFT JOIN teacher t ON u.id = t.teacher_id
+        LEFT JOIN admin a ON u.id = a.admin_id
+        WHERE u.id = #{userId}
+    </select>
+</mapper>
+

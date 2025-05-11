@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cjlu.mapper.TeacherStudentMapper">
+
+    <select id="selectStudentsByTeacher" resultType="com.cjlu.dto.StudentInfoDTO">
+        SELECT 
+            u.id AS userId,
+            u.name,
+            u.college,
+            u.number,
+            u.phone,
+            s.gender,
+            s.class AS className,
+            s.level,
+            s.skill,
+            s.situation,
+            s.difficult_student AS difficultStudent,
+            s.loan,
+            jp.job_id AS jobId,
+            jp.title AS jobTitle
+        FROM 
+            JobPosting jp
+            JOIN JobApplication ja ON jp.job_id = ja.job_id
+            JOIN User u ON ja.student_id = u.id
+            JOIN Student s ON u.id = s.student_id
+        WHERE 
+            jp.publisher_id = #{teacherId}
+            AND ja.status = 1 <!-- 只查询申请通过的学生 -->
+            <if test="jobId != null">
+                AND jp.job_id = #{jobId}
+            </if>
+        ORDER BY 
+            jp.job_id DESC, u.id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <select id="countStudentsByTeacher" resultType="java.lang.Integer">
+        SELECT 
+            COUNT(1)
+        FROM 
+            JobPosting jp
+            JOIN JobApplication ja ON jp.job_id = ja.job_id
+            JOIN User u ON ja.student_id = u.id
+        WHERE 
+            jp.publisher_id = #{teacherId}
+            AND ja.status = 1
+            <if test="jobId != null">
+                AND jp.job_id = #{jobId}
+            </if>
+    </select>
+    
+    <select id="selectStudentDetail" resultType="com.cjlu.dto.StudentInfoDTO">
+        SELECT 
+            u.id AS userId,
+            u.name,
+            u.college,
+            u.number,
+            u.phone,
+            s.gender,
+            s.class AS className,
+            s.level,
+            s.skill,
+            s.situation,
+            s.difficult_student AS difficultStudent,
+            s.loan
+        FROM 
+            User u
+            JOIN Student s ON u.id = s.student_id
+        WHERE 
+            u.id = #{studentId}
+    </select>
+    
+    <select id="checkStudentTeacherRelation" resultType="java.lang.Boolean">
+        SELECT 
+            COUNT(1) > 0
+        FROM 
+            JobPosting jp
+            JOIN JobApplication ja ON jp.job_id = ja.job_id
+        WHERE 
+            jp.publisher_id = #{teacherId}
+            AND ja.student_id = #{studentId}
+            AND ja.status = 1
+    </select>
+    
+    <select id="selectTeacherJobIds" resultType="java.lang.Integer">
+        SELECT 
+            job_id
+        FROM 
+            JobPosting
+        WHERE 
+            publisher_id = #{teacherId}
+    </select>
+    
+</mapper>

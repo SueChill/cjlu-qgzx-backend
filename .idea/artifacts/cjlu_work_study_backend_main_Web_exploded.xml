@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="cjlu-work-study-backend-main:Web exploded">
+    <output-path>$PROJECT_DIR$/artifacts/cjlu_work_study_backend_main_Web_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="cjlu-work-study-backend-main/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="cjlu-work-study-backend-main" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

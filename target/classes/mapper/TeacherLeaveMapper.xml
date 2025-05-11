@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cjlu.mapper.TeacherLeaveMapper">
+
+    <!-- 查询教师关联学生的请假记录 -->
+    <select id="selectStudentLeaveRecords" resultMap="leaveRecordResultMap">
+        SELECT
+        l.leave_date AS date,
+        l.leave_time AS time,
+        l.reason
+        FROM
+        LeaveApplication l
+        JOIN JobApplication ja ON l.student_id = ja.student_id
+        JOIN JobPosting jp ON ja.job_id = jp.job_id
+        WHERE
+        jp.publisher_id = #{teacherId}
+        AND ja.status = 1
+        <if test="studentId != null">
+            AND l.student_id = #{studentId}
+        </if>
+        ORDER BY
+        l.leave_date DESC
+    </select>
+
+    <!-- 结果映射，用于处理时间段字符串转列表 -->
+    <resultMap id="leaveRecordResultMap" type="com.cjlu.dto.LeaveRecordDTO">
+        <result property="date" column="date"/>
+        <result property="reason" column="reason"/>
+        <!-- 时间字段需要在Java代码中进行处理 -->
+        <result property="time" column="time" typeHandler="com.cjlu.handler.StringListTypeHandler"/>
+    </resultMap>
+
+    <!-- 检查学生是否属于教师岗位 -->
+    <select id="checkStudentTeacherRelation" resultType="java.lang.Boolean">
+        SELECT
+            COUNT(1) > 0
+        FROM
+            JobPosting jp
+                JOIN JobApplication ja ON jp.job_id = ja.job_id
+        WHERE
+            jp.publisher_id = #{teacherId}
+          AND ja.student_id = #{studentId}
+          AND ja.status = 1
+    </select>
+
+</mapper>

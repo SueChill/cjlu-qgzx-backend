@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cjlu.mapper.JobApplicationMapper">
+
+
+    <!--插入新申请的岗位信息-->
+    <insert id="insertApplication" parameterType="com.cjlu.entity.JobApplication">
+        INSERT INTO JobApplication (
+            student_id,
+            job_id,
+            avail_times,
+            reason,
+            status
+        )
+        VALUES (
+                   #{studentId},
+                   #{jobId},
+                   #{availTimes},
+                   #{reason},
+                   #{status}
+               )
+    </insert>
+
+<!--查询岗位信息，通过studentid-->
+    <select id="getApplicationsByStudentId" resultType="com.cjlu.dto.AppliedPositionDTO">
+        SELECT
+            a.application_id AS applicationId,
+            j.title AS jobTitle,
+            j.location,
+            a.apply_time AS applyTime,
+            a.status AS applicationStatus,
+            j.work_time AS workTime,
+            a.avail_times AS availTimes,
+            a.reason
+        FROM JobApplication a
+                 INNER JOIN JobPosting j ON a.job_id = j.job_id
+        WHERE a.student_id = #{studentId}
+        ORDER BY a.apply_time DESC
+    </select>
+</mapper>
